@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cameron's Scratch HTML Editor</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖥️</text></svg>">
+    <style>
+        /* Cosmic Particle Background */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+        }
+        
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: rgba(20, 20, 30, 0.9);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+        
+        .logo {
+            font-weight: bold;
+            font-size: 24px;
+            color: #4d97ff;
+            text-shadow: 0 0 10px rgba(77, 151, 255, 0.5);
+        }
+        
+        /* Main Container */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Toolbox Styles */
+        .toolbox {
+            width: 250px;
+            background-color: rgba(30, 30, 40, 0.9);
+            padding: 15px;
+            overflow-y: auto;
+            border-right: 1px solid #444;
+            z-index: 10;
+        }
+        
+        .toolbox::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .toolbox::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .toolbox::-webkit-scrollbar-thumb {
+            background: #4d97ff;
+            border-radius: 4px;
+        }
+        
+        /* Workspace Styles */
+        .workspace {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 5;
+        }
+        
+        /* Block Styles */
+        .block {
+            background-color: #4d97ff;
+            color: white;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,0,0,0.2);
+            position: relative;
+            transition: transform 0.1s, box-shadow 0.2s;
+            touch-action: none;
+        }
+        
+        .block:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        
+        .block:active:not(.no-drag) {
+            cursor: grabbing;
+            transform: scale(1.02);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            z-index: 20;
+        }
+        
+        .block.dragging {
+            opacity: 0.9;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+        
+        .block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(rgba(255,255,255,0.2), transparent);
+            border-radius: 8px 8px 0 0;
+            pointer-events: none;
+        }
+        
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .block-content {
+            margin-top: 10px;
+        }
+        
+        .block-input {
+            width: 100%;
+            padding: 8px 10px;
+            margin: 6px 0;
+            border: none;
+            border-radius: 4px;
+            background-color: rgba(255,255,255,0.9);
+            font-family: inherit;
+        }
+        
+        .block-select {
+            width: 100%;
+            padding: 8px 10px;
+            margin: 6px 0;
+            border: none;
+            border-radius: 4px;
+            background-color: rgba(255,255,255,0.9);
+            font-family: inherit;
+        }
+        
+        .block-color {
+            width: 100%;
+            height: 32px;
+            border: none;
+            cursor: pointer;
+            background-color: white;
+            border-radius: 4px;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .delete-btn:hover {
+            opacity: 1;
+        }
+        
+        /* Button Styles */
+        button {
+            background-color: #4d97ff;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 0 6px;
+            font-weight: bold;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            background-color: #4280d7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        /* Category Styles */
+        .block-category {
+            margin-bottom: 20px;
+        }
+        
+        .category-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding: 8px 10px;
+            background-color: rgba(40, 40, 50, 0.8);
+            border-radius: 6px;
+            color: #ddd;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Workspace Drop Zone */
+        .workspace-content {
+            min-height: 100%;
+            position: relative;
+        }
+        
+        .drop-indicator {
+            position: absolute;
+            height: 4px;
+            background-color: #4d97ff;
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .drop-indicator.visible {
+            opacity: 1;
+        }
+        
+        /* Export Options */
+        .export-options {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(30, 30, 40, 0.95);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            z-index: 1000;
+            border: 1px solid #444;
+            color: white;
+            width: 300px;
+        }
+        
+        .export-options h3 {
+            margin-top: 0;
+            color: #4d97ff;
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+        }
+        
+        /* Color Coding for Blocks */
+        .block[data-type="title"],
+        .block[data-type="heading"],
+        .block[data-type="paragraph"],
+        .block[data-type="text"] {
+            background-color: #4c97ff; /* Scratch blue */
+        }
+        
+        .block[data-type="image"],
+        .block[data-type="video"],
+        .block[data-type="audio"],
+        .block[data-type="youtube"] {
+            background-color: #9966ff; /* Scratch purple */
+        }
+        
+        .block[data-type="background"],
+        .block[data-type="font"],
+        .block[data-type="color"],
+        .block[data-type="spacer"] {
+            background-color: #0fbd8c; /* Scratch teal */
+        }
+        
+        .block[data-type="favicon"],
+        .block[data-type="meta"] {
+            background-color: #ffab19; /* Scratch orange */
+        }
+        
+        .block[data-type="button"],
+        .block[data-type="link"],
+        .block[data-type="form"] {
+            background-color: #ff6680; /* Scratch pink */
+        }
+        
+        .block[data-type="divider"],
+        .block[data-type="container"] {
+            background-color: #5cb712; /* Scratch green */
+        }
+        
+        /* Input field styling */
+        input, textarea, select {
+            pointer-events: auto;
+        }
+        
+        .no-drag {
+            cursor: auto;
+            user-select: text;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .toolbox {
+                width: auto;
+                height: 150px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                display: flex;
+                flex-wrap: wrap;
+            }
+            
+            .block-category {
+                margin-right: 15px;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <header>
+        <div class="logo">Cameron's Scratch HTML</div>
+        <div>
+            <button id="preview-btn">Preview</button>
+            <button id="export-btn">Download</button>
+            <button id="clear-btn">Clear</button>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <div class="toolbox">
+            <!-- Structure Blocks -->
+            <div class="block-category">
+                <div class="category-title">Structure</div>
+                <div class="block" draggable="true" data-type="title">
+                    <div class="block-header">Title</div>
+                </div>
+                <div class="block" draggable="true" data-type="heading">
+                    <div class="block-header">Heading</div>
+                </div>
+                <div class="block" draggable="true" data-type="paragraph">
+                    <div class="block-header">Paragraph</div>
+                </div>
+                <div class="block" draggable="true" data-type="text">
+                    <div class="block-header">Text</div>
+                </div>
+                <div class="block" draggable="true" data-type="spacer">
+                    <div class="block-header">Spacer</div>
+                </div>
+                <div class="block" draggable="true" data-type="divider">
+                    <div class="block-header">Divider</div>
+                </div>
+                <div class="block" draggable="true" data-type="container">
+                    <div class="block-header">Container</div>
+                </div>
+            </div>
+            
+            <!-- Media Blocks -->
+            <div class="block-category">
+                <div class="category-title">Media</div>
+                <div class="block" draggable="true" data-type="image">
+                    <div class="block-header">Image</div>
+                </div>
+                <div class="block" draggable="true" data-type="video">
+                    <div class="block-header">Video</div>
+                </div>
+                <div class="block" draggable="true" data-type="audio">
+                    <div class="block-header">Audio</div>
+                </div>
+                <div class="block" draggable="true" data-type="youtube">
+                    <div class="block-header">YouTube</div>
+                </div>
+            </div>
+            
+            <!-- Interactive Blocks -->
+            <div class="block-category">
+                <div class="category-title">Interactive</div>
+                <div class="block" draggable="true" data-type="button">
+                    <div class="block-header">Button</div>
+                </div>
+                <div class="block" draggable="true" data-type="link">
+                    <div class="block-header">Link</div>
+                </div>
+                <div class="block" draggable="true" data-type="form">
+                    <div class="block-header">Form</div>
+                </div>
+            </div>
+            
+            <!-- Styling Blocks -->
+            <div class="block-category">
+                <div class="category-title">Styling</div>
+                <div class="block" draggable="true" data-type="background">
+                    <div class="block-header">Background Color</div>
+                </div>
+                <div class="block" draggable="true" data-type="font">
+                    <div class="block-header">Text Font</div>
+                </div>
+                <div class="block" draggable="true" data-type="color">
+                    <div class="block-header">Text Color</div>
+                </div>
+            </div>
+            
+            <!-- Meta Blocks -->
+            <div class="block-category">
+                <div class="category-title">Meta</div>
+                <div class="block" draggable="true" data-type="favicon">
+                    <div class="block-header">Favicon</div>
+                </div>
+                <div class="block" draggable="true" data-type="meta">
+                    <div class="block-header">Meta Tags</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="workspace" id="workspace">
+            <div class="workspace-content" id="workspace-content"></div>
+            <div class="drop-indicator" id="drop-indicator"></div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="export-options" id="export-options">
+        <h3>Download Options</h3>
+        <div>
+            <label for="filename">File Name:</label>
+            <input type="text" id="filename" class="block-input" value="CameronsScratch.html">
+        </div>
+        <div style="margin-top: 15px; text-align: right;">
+            <button id="download-btn">Download</button>
+            <button id="cancel-export">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- Particles.js Library -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize particles.js
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": {
+                        "value": 150,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#ffffff"
+                    },
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#000000"
+                        },
+                        "polygon": {
+                            "nb_sides": 5
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": true,
+                        "anim": {
+                            "enable": true,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": true,
+                            "speed": 2,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#4d97ff",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 1,
+                        "direction": "none",
+                        "random": true,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {
+                            "enable": true,
+                            "rotateX": 600,
+                            "rotateY": 1200
+                        }
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 140,
+                            "line_linked": {
+                                "opacity": 1
+                            }
+                        },
+                        "bubble": {
+                            "distance": 400,
+                            "size": 40,
+                            "duration": 2,
+                            "opacity": 8,
+                            "speed": 3
+                        },
+                        "repulse": {
+                            "distance": 200,
+                            "duration": 0.4
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        },
+                        "remove": {
+                            "particles_nb": 2
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
+            
+            // Elements
+            const workspace = document.getElementById('workspace');
+            const workspaceContent = document.getElementById('workspace-content');
+            const dropIndicator = document.getElementById('drop-indicator');
+            const previewBtn = document.getElementById('preview-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const exportOptions = document.getElementById('export-options');
+            const overlay = document.getElementById('overlay');
+            const downloadBtn = document.getElementById('download-btn');
+            const cancelExport = document.getElementById('cancel-export');
+            const filenameInput = document.getElementById('filename');
+            
+            // State
+            let draggedBlock = null;
+            let isDragging = false;
+            let offsetX, offsetY;
+            let currentHoverBlock = null;
+            let insertPosition = null; // 'before' or 'after'
+            
+            // Initialize toolbox blocks
+            document.querySelectorAll('.toolbox .block').forEach(block => {
+                block.addEventListener('mousedown', startDragFromToolbox);
+                block.addEventListener('touchstart', startDragFromToolbox, { passive: false });
+            });
+            
+            // Start drag from toolbox
+            function startDragFromToolbox(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.classList.contains('delete-btn')) {
+                    return;
+                }
+                
+                e.preventDefault();
+                isDragging = true;
+                draggedBlock = this.cloneNode(true);
+                draggedBlock.classList.add('dragging');
+                
+                // Set initial position
+                const rect = this.getBoundingClientRect();
+                if (e.type === 'mousedown') {
+                    offsetX = e.clientX - rect.left;
+                    offsetY = e.clientY - rect.top;
+                } else if (e.type === 'touchstart') {
+                    offsetX = e.touches[0].clientX - rect.left;
+                    offsetY = e.touches[0].clientY - rect.top;
+                }
+                
+                draggedBlock.style.position = 'absolute';
+                draggedBlock.style.left = `${rect.left}px`;
+                draggedBlock.style.top = `${rect.top}px`;
+                draggedBlock.style.width = `${rect.width}px`;
+                document.body.appendChild(draggedBlock);
+                
+                // Hide original during drag
+                this.style.opacity = '0.4';
+                
+                // Add event listeners for moving and ending drag
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+            }
+            
+            // Drag move function
+            function dragMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                let clientX, clientY;
+                if (e.type === 'mousemove') {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                } else if (e.type === 'touchmove') {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                }
+                
+                draggedBlock.style.left = `${clientX - offsetX}px`;
+                draggedBlock.style.top = `${clientY - offsetY}px`;
+                
+                // Check if we're over the workspace
+                const workspaceRect = workspace.getBoundingClientRect();
+                const isOverWorkspace = (
+                    clientX >= workspaceRect.left &&
+                    clientX <= workspaceRect.right &&
+                    clientY >= workspaceRect.top &&
+                    clientY <= workspaceRect.bottom
+                );
+                
+                // Reset hover state
+                if (currentHoverBlock) {
+                    currentHoverBlock.style.transform = '';
+                    currentHoverBlock = null;
+                }
+                dropIndicator.style.opacity = '0';
+                insertPosition = null;
+                
+                if (isOverWorkspace) {
+                    // Check if we're hovering over any block in the workspace
+                    const blocks = workspaceContent.querySelectorAll('.block');
+                    let closestBlock = null;
+                    let closestDistance = Infinity;
+                    let closestPosition = null;
+                    
+                    blocks.forEach(block => {
+                        const blockRect = block.getBoundingClientRect();
+                        const blockCenterY = blockRect.top + blockRect.height / 2;
+                        const distance = Math.abs(clientY - blockCenterY);
+                        
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            closestBlock = block;
+                            closestPosition = clientY < blockCenterY ? 'before' : 'after';
+                        }
+                    });
+                    
+                    if (closestBlock && closestDistance < 50) {
+                        currentHoverBlock = closestBlock;
+                        insertPosition = closestPosition;
+                        
+                        // Visual feedback for insertion point
+                        const blockRect = closestBlock.getBoundingClientRect();
+                        if (insertPosition === 'before') {
+                            dropIndicator.style.top = `${blockRect.top - 2}px`;
+                            dropIndicator.style.left = `${workspaceRect.left + 20}px`;
+                            dropIndicator.style.width = `${workspaceRect.width - 40}px`;
+                            closestBlock.style.transform = 'translateY(10px)';
+                        } else {
+                            dropIndicator.style.top = `${blockRect.bottom + 2}px`;
+                            dropIndicator.style.left = `${workspaceRect.left + 20}px`;
+                            dropIndicator.style.width = `${workspaceRect.width - 40}px`;
+                            closestBlock.style.transform = 'translateY(-10px)';
+                        }
+                        dropIndicator.style.opacity = '1';
+                    } else {
+                        // Show indicator at the bottom if dragging over empty workspace
+                        if (workspaceContent.children.length === 0) {
+                            dropIndicator.style.top = `${workspaceRect.top + 20}px`;
+                            dropIndicator.style.left = `${workspaceRect.left + 20}px`;
+                            dropIndicator.style.width = `${workspaceRect.width - 40}px`;
+                            dropIndicator.style.opacity = '1';
+                        }
+                    }
+                }
+            }
+            
+            // End drag function
+            function endDrag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                isDragging = false;
+                
+                // Reset original block opacity
+                document.querySelectorAll('.toolbox .block').forEach(block => {
+                    block.style.opacity = '1';
+                });
+                
+                // Check if we dropped in the workspace
+                const workspaceRect = workspace.getBoundingClientRect();
+                let clientX, clientY;
+                
+                if (e.type === 'mouseup') {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                } else if (e.type === 'touchend') {
+                    clientX = e.changedTouches[0].clientX;
+                    clientY = e.changedTouches[0].clientY;
+                }
+                
+                const isOverWorkspace = (
+                    clientX >= workspaceRect.left &&
+                    clientX <= workspaceRect.right &&
+                    clientY >= workspaceRect.top &&
+                    clientY <= workspaceRect.bottom
+                );
+                
+                if (isOverWorkspace) {
+                    // Create the new block in the workspace
+                    createBlock(draggedBlock.dataset.type);
+                }
+                
+                // Remove the dragged block
+                if (draggedBlock && draggedBlock.parentNode) {
+                    draggedBlock.parentNode.removeChild(draggedBlock);
+                }
+                
+                // Reset hover effects
+                if (currentHoverBlock) {
+                    currentHoverBlock.style.transform = '';
+                    currentHoverBlock = null;
+                }
+                dropIndicator.style.opacity = '0';
+                
+                // Clean up event listeners
+                document.removeEventListener('mousemove', dragMove);
+                document.removeEventListener('touchmove', dragMove);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchend', endDrag);
+            }
+            
+            // Create a new block in the workspace
+            function createBlock(type, insertBeforeElement = null) {
+                let newBlock = null;
+                
+                switch(type) {
+                    case 'title':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'title';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Title
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="Page title" value="My Awesome Page">
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'heading':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'heading';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Heading
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <select class="block-select">
+                                    <option value="h1">Heading 1 (Biggest)</option>
+                                    <option value="h2">Heading 2</option>
+                                    <option value="h3">Heading 3</option>
+                                    <option value="h4">Heading 4</option>
+                                    <option value="h5">Heading 5</option>
+                                    <option value="h6">Heading 6 (Smallest)</option>
+                                </select>
+                                <input type="text" class="block-input" placeholder="Heading text" value="Welcome to my page">
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'paragraph':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'paragraph';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Paragraph
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <textarea class="block-input" placeholder="Paragraph text" rows="3">This is a paragraph of text. You can edit this content.</textarea>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'text':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'text';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Text
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="Text content" value="Some text here">
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'image':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'image';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Image
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="Image URL" value="https://via.placeholder.com/400x200">
+                                <input type="text" class="block-input" placeholder="Alt text" value="Example image">
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" class="block-input" placeholder="Width (e.g., 400px or 50%)" value="100%" style="flex: 1;">
+                                    <input type="text" class="block-input" placeholder="Height" value="auto" style="flex: 1;">
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'video':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'video';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Video
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="Video URL" value="">
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" class="block-input" placeholder="Width" value="100%" style="flex: 1;">
+                                    <input type="text" class="block-input" placeholder="Height" value="auto" style="flex: 1;">
+                                </div>
+                                <label style="display: block; margin-top: 5px;">
+                                    <input type="checkbox"> Autoplay
+                                </label>
+                                <label style="display: block;">
+                                    <input type="checkbox"> Controls
+                                </label>
+                                <label style="display: block;">
+                                    <input type="checkbox"> Loop
+                                </label>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'audio':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'audio';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Audio
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="Audio URL" value="">
+                                <label style="display: block; margin-top: 5px;">
+                                    <input type="checkbox"> Autoplay
+                                </label>
+                                <label style="display: block;">
+                                    <input type="checkbox"> Controls
+                                </label>
+                                <label style="display: block;">
+                                    <input type="checkbox"> Loop
+                                </label>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'youtube':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'youtube';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                YouTube
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="YouTube Video ID" value="dQw4w9WgXcQ">
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" class="block-input" placeholder="Width" value="560px" style="flex: 1;">
+                                    <input type="text" class="block-input" placeholder="Height" value="315px" style="flex: 1;">
+                                </div>
+                                <label style="display: block; margin-top: 5px;">
+                                    <input type="checkbox" checked> Show controls
+                                </label>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'button':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'button';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Button
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="Button text" value="Click Me">
+                                <input type="text" class="block-input" placeholder="Link URL" value="#">
+                                <input type="color" class="block-color" value="#4d97ff">
+                                <input type="color" class="block-color" value="#ffffff">
+                                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                                    <select class="block-select" style="flex: 1;">
+                                        <option value="small">Small</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="large">Large</option>
+                                    </select>
+                                    <select class="block-select" style="flex: 1;">
+                                        <option value="rounded">Rounded</option>
+                                        <option value="square" selected>Square</option>
+                                        <option value="pill">Pill</option>
+                                    </select>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'link':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'link';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Link
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="Link text" value="Learn More">
+                                <input type="text" class="block-input" placeholder="URL" value="https://example.com">
+                                <select class="block-select">
+                                    <option value="_self">Open in same tab</option>
+                                    <option value="_blank">Open in new tab</option>
+                                </select>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'form':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'form';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Form
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="Action URL" value="/submit">
+                                <select class="block-select">
+                                    <option value="post">POST</option>
+                                    <option value="get">GET</option>
+                                </select>
+                                <div class="form-fields" style="margin-top: 10px;">
+                                    <div class="form-field" style="display: flex; gap: 10px; margin-bottom: 5px;">
+                                        <select class="block-select" style="flex: 1;">
+                                            <option value="text">Text Input</option>
+                                            <option value="email">Email</option>
+                                            <option value="password">Password</option>
+                                            <option value="textarea">Text Area</option>
+                                            <option value="checkbox">Checkbox</option>
+                                            <option value="radio">Radio</option>
+                                            <option value="select">Dropdown</option>
+                                        </select>
+                                        <input type="text" class="block-input" placeholder="Field name" style="flex: 2;">
+                                    </div>
+                                </div>
+                                <button type="button" style="width: 100%; margin-top: 5px;">Add Field</button>
+                                <div style="margin-top: 10px;">
+                                    <input type="text" class="block-input" placeholder="Submit button text" value="Submit">
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'background':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'background';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Background Color
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="color" class="block-color" value="#ffffff">
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'font':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'font';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Text Font
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <select class="block-select">
+                                    <option value="Arial, sans-serif">Arial</option>
+                                    <option value="'Times New Roman', serif">Times New Roman</option>
+                                    <option value="'Courier New', monospace">Courier New</option>
+                                    <option value="'Georgia', serif">Georgia</option>
+                                    <option value="'Palatino Linotype', serif">Palatino</option>
+                                    <option value="'Comic Sans MS', cursive">Comic Sans</option>
+                                    <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
+                                    <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+                                </select>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'color':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'color';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Text Color
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="color" class="block-color" value="#000000">
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'spacer':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'spacer';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Spacer
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="range" min="10" max="200" value="50" class="block-input">
+                                <div style="text-align: center; margin-top: 5px;">50px height</div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'divider':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'divider';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Divider
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <select class="block-select">
+                                    <option value="solid">Solid Line</option>
+                                    <option value="dashed">Dashed Line</option>
+                                    <option value="dotted">Dotted Line</option>
+                                </select>
+                                <input type="color" class="block-color" value="#cccccc">
+                                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                                    <select class="block-select" style="flex: 1;">
+                                        <option value="1px">Thin</option>
+                                        <option value="2px" selected>Medium</option>
+                                        <option value="4px">Thick</option>
+                                    </select>
+                                    <select class="block-select" style="flex: 1;">
+                                        <option value="full">Full Width</option>
+                                        <option value="half">Half Width</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'container':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'container';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Container
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <select class="block-select">
+                                    <option value="div">Div</option>
+                                    <option value="section">Section</option>
+                                    <option value="article">Article</option>
+                                    <option value="aside">Aside</option>
+                                    <option value="header">Header</option>
+                                    <option value="footer">Footer</option>
+                                </select>
+                                <input type="color" class="block-color" value="#f5f5f5">
+                                <div class="container-content" style="min-height: 50px; margin: 10px 0; border: 2px dashed rgba(255,255,255,0.3);"></div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'favicon':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'favicon';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Favicon
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="Favicon URL or emoji" value="🖥️">
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'meta':
+                        newBlock = document.createElement('div');
+                        newBlock.className = 'block';
+                        newBlock.dataset.type = 'meta';
+                        newBlock.innerHTML = `
+                            <div class="block-header">
+                                Meta Tags
+                                <button class="delete-btn">×</button>
+                            </div>
+                            <div class="block-content">
+                                <input type="text" class="block-input" placeholder="Description" value="My awesome website">
+                                <input type="text" class="block-input" placeholder="Keywords" value="website, awesome, mine">
+                                <input type="text" class="block-input" placeholder="Author" value="Your Name">
+                            </div>
+                        `;
+                        break;
+                }
+                
+                if (newBlock) {
+                    // Add delete functionality
+                    newBlock.querySelector('.delete-btn').addEventListener('click', function() {
+                        newBlock.remove();
+                    });
+                    
+                    // Set up drag for this new block
+                    setupBlockDrag(newBlock);
+                    
+                    // Insert the new block at the correct position
+                    if (insertBeforeElement) {
+                        workspaceContent.insertBefore(newBlock, insertBeforeElement);
+                    } else if (currentHoverBlock && insertPosition) {
+                        if (insertPosition === 'before') {
+                            workspaceContent.insertBefore(newBlock, currentHoverBlock);
+                        } else {
+                            workspaceContent.insertBefore(newBlock, currentHoverBlock.nextSibling);
+                        }
+                    } else {
+                        workspaceContent.appendChild(newBlock);
+                    }
+                    
+                    // Prevent inputs from triggering drag
+                    newBlock.querySelectorAll('input, textarea, select').forEach(input => {
+                        input.addEventListener('mousedown', stopPropagation);
+                        input.addEventListener('touchstart', stopPropagation);
+                    });
+                }
+            }
+            
+            function stopPropagation(e) {
+                e.stopPropagation();
+            }
+            
+            // Set up drag for existing blocks
+            function setupBlockDrag(block) {
+                block.addEventListener('mousedown', startBlockDrag);
+                block.addEventListener('touchstart', startBlockDrag, { passive: false });
+            }
+            
+            // Start dragging an existing block
+            function startBlockDrag(e) {
+                // Don't start drag if clicking on an input or button
+                if (e.target.tagName === 'INPUT' || 
+                    e.target.tagName === 'TEXTAREA' || 
+                    e.target.tagName === 'SELECT' || 
+                    e.target.classList.contains('delete-btn')) {
+                    return;
+                }
+                
+                e.preventDefault();
+                isDragging = true;
+                draggedBlock = this;
+                draggedBlock.classList.add('dragging');
+                
+                const rect = this.getBoundingClientRect();
+                if (e.type === 'mousedown') {
+                    offsetX = e.clientX - rect.left;
+                    offsetY = e.clientY - rect.top;
+                } else if (e.type === 'touchstart') {
+                    offsetX = e.touches[0].clientX - rect.left;
+                    offsetY = e.touches[0].clientY - rect.top;
+                }
+                
+                draggedBlock.style.position = 'absolute';
+                draggedBlock.style.left = `${rect.left}px`;
+                draggedBlock.style.top = `${rect.top}px`;
+                draggedBlock.style.width = `${rect.width}px`;
+                draggedBlock.style.zIndex = '100';
+                
+                document.body.appendChild(draggedBlock);
+                
+                document.addEventListener('mousemove', dragBlockMove);
+                document.addEventListener('touchmove', dragBlockMove, { passive: false });
+                document.addEventListener('mouseup', endBlockDrag);
+                document.addEventListener('touchend', endBlockDrag);
+            }
+            
+            // Move existing block
+            function dragBlockMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                let clientX, clientY;
+                if (e.type === 'mousemove') {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                } else if (e.type === 'touchmove') {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                }
+                
+                draggedBlock.style.left = `${clientX - offsetX}px`;
+                draggedBlock.style.top = `${clientY - offsetY}px`;
+                
+                // Check if we're over the workspace
+                const workspaceRect = workspace.getBoundingClientRect();
+                const isOverWorkspace = (
+                    clientX >= workspaceRect.left &&
+                    clientX <= workspaceRect.right &&
+                    clientY >= workspaceRect.top &&
+                    clientY <= workspaceRect.bottom
+                );
+                
+                // Reset hover state
+                if (currentHoverBlock) {
+                    currentHoverBlock.style.transform = '';
+                    currentHoverBlock = null;
+                }
+                dropIndicator.style.opacity = '0';
+                insertPosition = null;
+                
+                if (isOverWorkspace) {
+                    // Check if we're hovering over any other block in the workspace
+                    const blocks = workspaceContent.querySelectorAll('.block');
+                    let closestBlock = null;
+                    let closestDistance = Infinity;
+                    let closestPosition = null;
+                    
+                    blocks.forEach(block => {
+                        if (block === draggedBlock) return;
+                        
+                        const blockRect = block.getBoundingClientRect();
+                        const blockCenterY = blockRect.top + blockRect.height / 2;
+                        const distance = Math.abs(clientY - blockCenterY);
+                        
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            closestBlock = block;
+                            closestPosition = clientY < blockCenterY ? 'before' : 'after';
+                        }
+                    });
+                    
+                    if (closestBlock && closestDistance < 50) {
+                        currentHoverBlock = closestBlock;
+                        insertPosition = closestPosition;
+                        
+                        // Visual feedback for insertion point
+                        const blockRect = closestBlock.getBoundingClientRect();
+                        if (insertPosition === 'before') {
+                            dropIndicator.style.top = `${blockRect.top - 2}px`;
+                            dropIndicator.style.left = `${workspaceRect.left + 20}px`;
+                            dropIndicator.style.width = `${workspaceRect.width - 40}px`;
+                            closestBlock.style.transform = 'translateY(10px)';
+                        } else {
+                            dropIndicator.style.top = `${blockRect.bottom + 2}px`;
+                            dropIndicator.style.left = `${workspaceRect.left + 20}px`;
+                            dropIndicator.style.width = `${workspaceRect.width - 40}px`;
+                            closestBlock.style.transform = 'translateY(-10px)';
+                        }
+                        dropIndicator.style.opacity = '1';
+                    } else {
+                        // Show indicator at the bottom if dragging over empty space
+                        dropIndicator.style.top = `${workspaceRect.bottom - 20}px`;
+                        dropIndicator.style.left = `${workspaceRect.left + 20}px`;
+                        dropIndicator.style.width = `${workspaceRect.width - 40}px`;
+                        dropIndicator.style.opacity = '1';
+                    }
+                }
+            }
+            
+            // End dragging existing block
+            function endBlockDrag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                isDragging = false;
+                draggedBlock.classList.remove('dragging');
+                draggedBlock.style.zIndex = '';
+                
+                // Check if we dropped in the workspace
+                const workspaceRect = workspace.getBoundingClientRect();
+                let clientX, clientY;
+                
+                if (e.type === 'mouseup') {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                } else if (e.type === 'touchend') {
+                    clientX = e.changedTouches[0].clientX;
+                    clientY = e.changedTouches[0].clientY;
+                }
+                
+                const isOverWorkspace = (
+                    clientX >= workspaceRect.left &&
+                    clientX <= workspaceRect.right &&
+                    clientY >= workspaceRect.top &&
+                    clientY <= workspaceRect.bottom
+                );
+                
+                if (isOverWorkspace) {
+                    // Move the block to the new position
+                    if (currentHoverBlock && insertPosition) {
+                        if (insertPosition === 'before') {
+                            workspaceContent.insertBefore(draggedBlock, currentHoverBlock);
+                        } else {
+                            workspaceContent.insertBefore(draggedBlock, currentHoverBlock.nextSibling);
+                        }
+                    } else {
+                        // Add to end if no specific position
+                        workspaceContent.appendChild(draggedBlock);
+                    }
+                } else {
+                    // Return to original position if dropped outside
+                    workspaceContent.appendChild(draggedBlock);
+                }
+                
+                // Reset position styling
+                draggedBlock.style.position = '';
+                draggedBlock.style.left = '';
+                draggedBlock.style.top = '';
+                draggedBlock.style.width = '';
+                
+                // Reset hover effects
+                if (currentHoverBlock) {
+                    currentHoverBlock.style.transform = '';
+                    currentHoverBlock = null;
+                }
+                dropIndicator.style.opacity = '0';
+                
+                // Clean up event listeners
+                document.removeEventListener('mousemove', dragBlockMove);
+                document.removeEventListener('touchmove', dragBlockMove);
+                document.removeEventListener('mouseup', endBlockDrag);
+                document.removeEventListener('touchend', endBlockDrag);
+            }
+            
+            // Preview functionality
+            previewBtn.addEventListener('click', function() {
+                const html = generateHTML();
+                const previewWindow = window.open('', '_blank');
+                previewWindow.document.write(html);
+                previewWindow.document.close();
+            });
+            
+            // Export functionality
+            exportBtn.addEventListener('click', function() {
+                exportOptions.style.display = 'block';
+                overlay.style.display = 'block';
+            });
+            
+            cancelExport.addEventListener('click', function() {
+                exportOptions.style.display = 'none';
+                overlay.style.display = 'none';
+            });
+            
+            overlay.addEventListener('click', function() {
+                exportOptions.style.display = 'none';
+                this.style.display = 'none';
+            });
+            
+            downloadBtn.addEventListener('click', function() {
+                const html = generateHTML();
+                const filename = filenameInput.value || 'CameronsScratch.html';
+                
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    exportOptions.style.display = 'none';
+                    overlay.style.display = 'none';
+                }, 0);
+            });
+            
+            // Clear functionality
+            clearBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear your project?')) {
+                    workspaceContent.innerHTML = '';
+                }
+            });
+            
+            // Generate HTML from blocks
+            function generateHTML() {
+                let title = 'My Awesome Page';
+                let favicon = '🖥️';
+                let bgColor = '#ffffff';
+                let fontFamily = 'Arial, sans-serif';
+                let textColor = '#000000';
+                let metaDescription = 'My awesome website';
+                let metaKeywords = 'website, awesome, mine';
+                let metaAuthor = 'Your Name';
+                let content = '';
+                
+                // Process all blocks
+                workspaceContent.querySelectorAll('.block').forEach(block => {
+                    switch(block.dataset.type) {
+                        case 'title':
+                            title = block.querySelector('.block-input').value || title;
+                            break;
+                            
+                        case 'heading':
+                            const headingLevel = block.querySelector('.block-select').value;
+                            const headingText = block.querySelector('.block-input').value || 'Heading';
+                            content += `<${headingLevel}>${headingText}</${headingLevel}>`;
+                            break;
+                            
+                        case 'paragraph':
+                            const paragraphText = block.querySelector('.block-input').value || 'Paragraph text';
+                            content += `<p>${paragraphText}</p>`;
+                            break;
+                            
+                        case 'text':
+                            const textContent = block.querySelector('.block-input').value || 'Some text here';
+                            content += `<span>${textContent}</span>`;
+                            break;
+                            
+                        case 'image':
+                            const imgUrl = block.querySelectorAll('.block-input')[0].value || 'https://via.placeholder.com/400x200';
+                            const imgAlt = block.querySelectorAll('.block-input')[1].value || 'Image';
+                            const imgWidth = block.querySelectorAll('.block-input')[2].value || '100%';
+                            const imgHeight = block.querySelectorAll('.block-input')[3]?.value || 'auto';
+                            content += `<img src="${imgUrl}" alt="${imgAlt}" style="width:${imgWidth}; height:${imgHeight}; max-width:100%;">`;
+                            break;
+                            
+                        case 'video':
+                            const videoUrl = block.querySelectorAll('.block-input')[0].value || '';
+                            const videoWidth = block.querySelectorAll('.block-input')[1].value || '100%';
+                            const videoHeight = block.querySelectorAll('.block-input')[2].value || 'auto';
+                            const autoplay = block.querySelectorAll('input[type="checkbox"]')[0].checked ? 'autoplay' : '';
+                            const controls = block.querySelectorAll('input[type="checkbox"]')[1].checked ? 'controls' : '';
+                            const loop = block.querySelectorAll('input[type="checkbox"]')[2].checked ? 'loop' : '';
+                            
+                            if (videoUrl) {
+                                content += `
+                                    <video width="${videoWidth}" height="${videoHeight}" ${autoplay} ${controls} ${loop} style="max-width:100%;">
+                                        <source src="${videoUrl}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                `;
+                            }
+                            break;
+                            
+                        case 'audio':
+                            const audioUrl = block.querySelectorAll('.block-input')[0].value || '';
+                            const audioAutoplay = block.querySelectorAll('input[type="checkbox"]')[0].checked ? 'autoplay' : '';
+                            const audioControls = block.querySelectorAll('input[type="checkbox"]')[1].checked ? 'controls' : '';
+                            const audioLoop = block.querySelectorAll('input[type="checkbox"]')[2].checked ? 'loop' : '';
+                            
+                            if (audioUrl) {
+                                content += `
+                                    <audio ${audioAutoplay} ${audioControls} ${audioLoop} style="width:100%;">
+                                        <source src="${audioUrl}" type="audio/mpeg">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                `;
+                            }
+                            break;
+                            
+                        case 'youtube':
+                            const youtubeId = block.querySelectorAll('.block-input')[0].value || 'dQw4w9WgXcQ';
+                            const youtubeWidth = block.querySelectorAll('.block-input')[1].value || '560px';
+                            const youtubeHeight = block.querySelectorAll('.block-input')[2].value || '315px';
+                            const youtubeControls = block.querySelectorAll('input[type="checkbox"]')[0].checked ? '1' : '0';
+                            
+                            content += `
+                                <iframe width="${youtubeWidth}" height="${youtubeHeight}" 
+                                    src="https://www.youtube.com/embed/${youtubeId}?controls=${youtubeControls}" 
+                                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen style="max-width:100%;"></iframe>
+                            `;
+                            break;
+                            
+                        case 'button':
+                            const buttonText = block.querySelectorAll('.block-input')[0].value || 'Click Me';
+                            const buttonLink = block.querySelectorAll('.block-input')[1].value || '#';
+                            const buttonColor = block.querySelectorAll('.block-color')[0].value || '#4d97ff';
+                            const buttonTextColor = block.querySelectorAll('.block-color')[1].value || '#ffffff';
+                            const buttonSize = block.querySelectorAll('.block-select')[0].value || 'medium';
+                            const buttonShape = block.querySelectorAll('.block-select')[1].value || 'square';
+                            
+                            let buttonClass = '';
+                            if (buttonSize === 'small') buttonClass += ' small';
+                            if (buttonSize === 'large') buttonClass += ' large';
+                            if (buttonShape === 'rounded') buttonClass += ' rounded';
+                            if (buttonShape === 'pill') buttonClass += ' pill';
+                            
+                            content += `
+                                <a href="${buttonLink}" class="custom-button${buttonClass}" 
+                                   style="background-color:${buttonColor}; color:${buttonTextColor};">
+                                    ${buttonText}
+                                </a>
+                                <style>
+                                    .custom-button {
+                                        display: inline-block;
+                                        padding: 10px 20px;
+                                        text-decoration: none;
+                                        font-weight: bold;
+                                        border: none;
+                                        cursor: pointer;
+                                        margin: 5px 0;
+                                    }
+                                    .custom-button.small { padding: 5px 10px; font-size: 12px; }
+                                    .custom-button.large { padding: 15px 30px; font-size: 18px; }
+                                    .custom-button.rounded { border-radius: 5px; }
+                                    .custom-button.pill { border-radius: 50px; }
+                                </style>
+                            `;
+                            break;
+                            
+                        case 'link':
+                            const linkText = block.querySelectorAll('.block-input')[0].value || 'Learn More';
+                            const linkUrl = block.querySelectorAll('.block-input')[1].value || 'https://example.com';
+                            const linkTarget = block.querySelector('.block-select').value || '_self';
+                            content += `<a href="${linkUrl}" target="${linkTarget}">${linkText}</a>`;
+                            break;
+                            
+                        case 'form':
+                            const formAction = block.querySelectorAll('.block-input')[0].value || '/submit';
+                            const formMethod = block.querySelector('.block-select').value || 'post';
+                            const submitText = block.querySelectorAll('.block-input')[1].value || 'Submit';
+                            
+                            let formFields = '';
+                            block.querySelectorAll('.form-field').forEach(field => {
+                                const fieldType = field.querySelector('select').value || 'text';
+                                const fieldName = field.querySelector('input').value || 'field';
+                                
+                                switch(fieldType) {
+                                    case 'text':
+                                        formFields += `<input type="text" name="${fieldName}" placeholder="${fieldName}"><br>`;
+                                        break;
+                                    case 'email':
+                                        formFields += `<input type="email" name="${fieldName}" placeholder="${fieldName}"><br>`;
+                                        break;
+                                    case 'password':
+                                        formFields += `<input type="password" name="${fieldName}" placeholder="${fieldName}"><br>`;
+                                        break;
+                                    case 'textarea':
+                                        formFields += `<textarea name="${fieldName}" placeholder="${fieldName}"></textarea><br>`;
+                                        break;
+                                    case 'checkbox':
+                                        formFields += `<label><input type="checkbox" name="${fieldName}"> ${fieldName}</label><br>`;
+                                        break;
+                                    case 'radio':
+                                        formFields += `<label><input type="radio" name="${fieldName}"> ${fieldName}</label><br>`;
+                                        break;
+                                    case 'select':
+                                        formFields += `
+                                            <select name="${fieldName}">
+                                                <option value="">Select ${fieldName}</option>
+                                                <option value="option1">Option 1</option>
+                                                <option value="option2">Option 2</option>
+                                            </select><br>
+                                        `;
+                                        break;
+                                }
+                            });
+                            
+                            content += `
+                                <form action="${formAction}" method="${formMethod}">
+                                    ${formFields}
+                                    <button type="submit">${submitText}</button>
+                                </form>
+                            `;
+                            break;
+                            
+                        case 'background':
+                            bgColor = block.querySelector('.block-color').value || bgColor;
+                            break;
+                            
+                        case 'font':
+                            fontFamily = block.querySelector('.block-select').value || fontFamily;
+                            break;
+                            
+                        case 'color':
+                            textColor = block.querySelector('.block-color').value || textColor;
+                            break;
+                            
+                        case 'spacer':
+                            const spacerHeight = block.querySelector('input[type="range"]').value || '50';
+                            content += `<div style="height:${spacerHeight}px;"></div>`;
+                            break;
+                            
+                        case 'divider':
+                            const dividerStyle = block.querySelectorAll('.block-select')[0].value || 'solid';
+                            const dividerColor = block.querySelector('.block-color').value || '#cccccc';
+                            const dividerWidth = block.querySelectorAll('.block-select')[1].value || '2px';
+                            const dividerType = block.querySelectorAll('.block-select')[2].value || 'full';
+                            
+                            let dividerHtml = '<hr style="';
+                            dividerHtml += `border-top: ${dividerWidth} ${dividerStyle} ${dividerColor};`;
+                            
+                            if (dividerType === 'half') {
+                                dividerHtml += 'width: 50%; margin-left: auto; margin-right: auto;';
+                            } else if (dividerType === 'custom') {
+                                dividerHtml += 'width: 80%; margin-left: auto; margin-right: auto;';
+                            }
+                            
+                            dividerHtml += '">';
+                            content += dividerHtml;
+                            break;
+                            
+                        case 'container':
+                            const containerType = block.querySelector('.block-select').value || 'div';
+                            const containerColor = block.querySelector('.block-color').value || '#f5f5f5';
+                            let containerContent = '';
+                            
+                            // Process container content
+                            const containerDiv = block.querySelector('.container-content');
+                            if (containerDiv) {
+                                containerDiv.querySelectorAll('.block').forEach(containerBlock => {
+                                    // Simplified content for nested blocks
+                                    containerContent += `<div style="margin:10px; padding:10px; border:1px dashed #ccc;">Container content</div>`;
+                                });
+                            }
+                            
+                            content += `
+                                <${containerType} style="background-color:${containerColor}; padding:20px; margin:10px 0;">
+                                    ${containerContent}
+                                </${containerType}>
+                            `;
+                            break;
+                            
+                        case 'favicon':
+                            favicon = block.querySelector('.block-input').value || favicon;
+                            break;
+                            
+                        case 'meta':
+                            metaDescription = block.querySelectorAll('.block-input')[0].value || metaDescription;
+                            metaKeywords = block.querySelectorAll('.block-input')[1].value || metaKeywords;
+                            metaAuthor = block.querySelectorAll('.block-input')[2].value || metaAuthor;
+                            break;
+                    }
+                });
+                
+                // Generate the full HTML
+                return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <meta name="description" content="${metaDescription}">
+    <meta name="keywords" content="${metaKeywords}">
+    <meta name="author" content="${metaAuthor}">
+    <style>
+        body {
+            font-family: ${fontFamily};
+            color: ${textColor};
+            background-color: ${bgColor};
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        a {
+            color: #4d97ff;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        img, video, iframe {
+            max-width: 100%;
+        }
+    </style>
+    ${generateFaviconTag(favicon)}
+</head>
+<body>
+    ${content}
+</body>
+</html>`;
+            }
+            
+            // Generate appropriate favicon tag based on input
+            function generateFaviconTag(input) {
+                if (input.startsWith('http') || input.startsWith('data:')) {
+                    return `<link rel="icon" href="${input}">`;
+                } else if (input.match(/\p{Emoji}/u)) {
+                    // It's an emoji
+                    return `<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${input}</text></svg>">`;
+                } else {
+                    // Default to emoji computer
+                    return `<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖥️</text></svg>">`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

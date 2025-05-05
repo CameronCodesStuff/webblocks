@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cameron's Scratch HTML Editor</title>
+    <title>WebBlocks</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖥️</text></svg>">
     <style>
-        /* Cosmic Particle Background */
         body {
             margin: 0;
             padding: 0;
@@ -26,7 +25,6 @@
             z-index: -1;
         }
         
-        /* Header Styles */
         header {
             background-color: rgba(20, 20, 30, 0.9);
             color: white;
@@ -45,14 +43,12 @@
             text-shadow: 0 0 10px rgba(77, 151, 255, 0.5);
         }
         
-        /* Main Container */
         .main-container {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
         
-        /* Toolbox Styles */
         .toolbox {
             width: 250px;
             background-color: rgba(30, 30, 40, 0.9);
@@ -75,7 +71,6 @@
             border-radius: 4px;
         }
         
-        /* Workspace Styles */
         .workspace {
             flex: 1;
             padding: 20px;
@@ -84,7 +79,6 @@
             z-index: 5;
         }
         
-        /* Block Styles */
         .block {
             background-color: #4d97ff;
             color: white;
@@ -186,7 +180,6 @@
             opacity: 1;
         }
         
-        /* Button Styles */
         button {
             background-color: #4d97ff;
             color: white;
@@ -211,7 +204,6 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         
-        /* Category Styles */
         .block-category {
             margin-bottom: 20px;
         }
@@ -228,7 +220,6 @@
             letter-spacing: 1px;
         }
         
-        /* Workspace Drop Zone */
         .workspace-content {
             min-height: 100%;
             position: relative;
@@ -249,7 +240,6 @@
             opacity: 1;
         }
         
-        /* Export Options */
         .export-options {
             display: none;
             position: fixed;
@@ -282,45 +272,43 @@
             z-index: 999;
         }
         
-        /* Color Coding for Blocks */
         .block[data-type="title"],
         .block[data-type="heading"],
         .block[data-type="paragraph"],
         .block[data-type="text"] {
-            background-color: #4c97ff; /* Scratch blue */
+            background-color: #4c97ff; 
         }
         
         .block[data-type="image"],
         .block[data-type="video"],
         .block[data-type="audio"],
         .block[data-type="youtube"] {
-            background-color: #9966ff; /* Scratch purple */
+            background-color: #9966ff; 
         }
         
         .block[data-type="background"],
         .block[data-type="font"],
         .block[data-type="color"],
         .block[data-type="spacer"] {
-            background-color: #0fbd8c; /* Scratch teal */
+            background-color: #0fbd8c; 
         }
         
         .block[data-type="favicon"],
         .block[data-type="meta"] {
-            background-color: #ffab19; /* Scratch orange */
+            background-color: #ffab19; 
         }
         
         .block[data-type="button"],
         .block[data-type="link"],
         .block[data-type="form"] {
-            background-color: #ff6680; /* Scratch pink */
+            background-color: #ff6680; 
         }
         
         .block[data-type="divider"],
         .block[data-type="container"] {
-            background-color: #5cb712; /* Scratch green */
+            background-color: #5cb712; 
         }
         
-        /* Input field styling */
         input, textarea, select {
             pointer-events: auto;
         }
@@ -330,7 +318,6 @@
             user-select: text;
         }
         
-        /* Responsive Design */
         @media (max-width: 768px) {
             .main-container {
                 flex-direction: column;
@@ -356,7 +343,7 @@
     <div id="particles-js"></div>
     
     <header>
-        <div class="logo">Cameron's Scratch HTML</div>
+        <div class="logo">WebBlocks</div>
         <div>
             <button id="preview-btn">Preview</button>
             <button id="export-btn">Download</button>
@@ -366,7 +353,6 @@
     
     <div class="main-container">
         <div class="toolbox">
-            <!-- Structure Blocks -->
             <div class="block-category">
                 <div class="category-title">Structure</div>
                 <div class="block" draggable="true" data-type="title">
@@ -392,7 +378,6 @@
                 </div>
             </div>
             
-            <!-- Media Blocks -->
             <div class="block-category">
                 <div class="category-title">Media</div>
                 <div class="block" draggable="true" data-type="image">
@@ -409,7 +394,6 @@
                 </div>
             </div>
             
-            <!-- Interactive Blocks -->
             <div class="block-category">
                 <div class="category-title">Interactive</div>
                 <div class="block" draggable="true" data-type="button">
@@ -423,7 +407,6 @@
                 </div>
             </div>
             
-            <!-- Styling Blocks -->
             <div class="block-category">
                 <div class="category-title">Styling</div>
                 <div class="block" draggable="true" data-type="background">
@@ -437,7 +420,6 @@
                 </div>
             </div>
             
-            <!-- Meta Blocks -->
             <div class="block-category">
                 <div class="category-title">Meta</div>
                 <div class="block" draggable="true" data-type="favicon">
@@ -461,7 +443,7 @@
         <h3>Download Options</h3>
         <div>
             <label for="filename">File Name:</label>
-            <input type="text" id="filename" class="block-input" value="CameronsScratch.html">
+            <input type="text" id="filename" class="block-input" value="CameronsWebBlocks.html">
         </div>
         <div style="margin-top: 15px; text-align: right;">
             <button id="download-btn">Download</button>
@@ -469,12 +451,10 @@
         </div>
     </div>
     
-    <!-- Particles.js Library -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize particles.js
             particlesJS("particles-js", {
                 "particles": {
                     "number": {
@@ -581,7 +561,6 @@
                 "retina_detect": true
             });
             
-            // Elements
             const workspace = document.getElementById('workspace');
             const workspaceContent = document.getElementById('workspace-content');
             const dropIndicator = document.getElementById('drop-indicator');
@@ -594,20 +573,17 @@
             const cancelExport = document.getElementById('cancel-export');
             const filenameInput = document.getElementById('filename');
             
-            // State
             let draggedBlock = null;
             let isDragging = false;
             let offsetX, offsetY;
             let currentHoverBlock = null;
             let insertPosition = null; // 'before' or 'after'
             
-            // Initialize toolbox blocks
             document.querySelectorAll('.toolbox .block').forEach(block => {
                 block.addEventListener('mousedown', startDragFromToolbox);
                 block.addEventListener('touchstart', startDragFromToolbox, { passive: false });
             });
             
-            // Start drag from toolbox
             function startDragFromToolbox(e) {
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.classList.contains('delete-btn')) {
                     return;
@@ -618,7 +594,6 @@
                 draggedBlock = this.cloneNode(true);
                 draggedBlock.classList.add('dragging');
                 
-                // Set initial position
                 const rect = this.getBoundingClientRect();
                 if (e.type === 'mousedown') {
                     offsetX = e.clientX - rect.left;
@@ -634,17 +609,14 @@
                 draggedBlock.style.width = `${rect.width}px`;
                 document.body.appendChild(draggedBlock);
                 
-                // Hide original during drag
                 this.style.opacity = '0.4';
                 
-                // Add event listeners for moving and ending drag
                 document.addEventListener('mousemove', dragMove);
                 document.addEventListener('touchmove', dragMove, { passive: false });
                 document.addEventListener('mouseup', endDrag);
                 document.addEventListener('touchend', endDrag);
             }
             
-            // Drag move function
             function dragMove(e) {
                 if (!isDragging) return;
                 e.preventDefault();
@@ -661,7 +633,6 @@
                 draggedBlock.style.left = `${clientX - offsetX}px`;
                 draggedBlock.style.top = `${clientY - offsetY}px`;
                 
-                // Check if we're over the workspace
                 const workspaceRect = workspace.getBoundingClientRect();
                 const isOverWorkspace = (
                     clientX >= workspaceRect.left &&
@@ -670,7 +641,6 @@
                     clientY <= workspaceRect.bottom
                 );
                 
-                // Reset hover state
                 if (currentHoverBlock) {
                     currentHoverBlock.style.transform = '';
                     currentHoverBlock = null;
@@ -679,7 +649,6 @@
                 insertPosition = null;
                 
                 if (isOverWorkspace) {
-                    // Check if we're hovering over any block in the workspace
                     const blocks = workspaceContent.querySelectorAll('.block');
                     let closestBlock = null;
                     let closestDistance = Infinity;
@@ -701,7 +670,6 @@
                         currentHoverBlock = closestBlock;
                         insertPosition = closestPosition;
                         
-                        // Visual feedback for insertion point
                         const blockRect = closestBlock.getBoundingClientRect();
                         if (insertPosition === 'before') {
                             dropIndicator.style.top = `${blockRect.top - 2}px`;
@@ -716,7 +684,6 @@
                         }
                         dropIndicator.style.opacity = '1';
                     } else {
-                        // Show indicator at the bottom if dragging over empty workspace
                         if (workspaceContent.children.length === 0) {
                             dropIndicator.style.top = `${workspaceRect.top + 20}px`;
                             dropIndicator.style.left = `${workspaceRect.left + 20}px`;
@@ -727,19 +694,16 @@
                 }
             }
             
-            // End drag function
             function endDrag(e) {
                 if (!isDragging) return;
                 e.preventDefault();
                 
                 isDragging = false;
                 
-                // Reset original block opacity
                 document.querySelectorAll('.toolbox .block').forEach(block => {
                     block.style.opacity = '1';
                 });
                 
-                // Check if we dropped in the workspace
                 const workspaceRect = workspace.getBoundingClientRect();
                 let clientX, clientY;
                 
@@ -759,30 +723,25 @@
                 );
                 
                 if (isOverWorkspace) {
-                    // Create the new block in the workspace
                     createBlock(draggedBlock.dataset.type);
                 }
                 
-                // Remove the dragged block
                 if (draggedBlock && draggedBlock.parentNode) {
                     draggedBlock.parentNode.removeChild(draggedBlock);
                 }
                 
-                // Reset hover effects
                 if (currentHoverBlock) {
                     currentHoverBlock.style.transform = '';
                     currentHoverBlock = null;
                 }
                 dropIndicator.style.opacity = '0';
                 
-                // Clean up event listeners
                 document.removeEventListener('mousemove', dragMove);
                 document.removeEventListener('touchmove', dragMove);
                 document.removeEventListener('mouseup', endDrag);
                 document.removeEventListener('touchend', endDrag);
             }
             
-            // Create a new block in the workspace
             function createBlock(type, insertBeforeElement = null) {
                 let newBlock = null;
                 
@@ -1196,15 +1155,12 @@
                 }
                 
                 if (newBlock) {
-                    // Add delete functionality
                     newBlock.querySelector('.delete-btn').addEventListener('click', function() {
                         newBlock.remove();
                     });
                     
-                    // Set up drag for this new block
                     setupBlockDrag(newBlock);
                     
-                    // Insert the new block at the correct position
                     if (insertBeforeElement) {
                         workspaceContent.insertBefore(newBlock, insertBeforeElement);
                     } else if (currentHoverBlock && insertPosition) {
@@ -1217,7 +1173,6 @@
                         workspaceContent.appendChild(newBlock);
                     }
                     
-                    // Prevent inputs from triggering drag
                     newBlock.querySelectorAll('input, textarea, select').forEach(input => {
                         input.addEventListener('mousedown', stopPropagation);
                         input.addEventListener('touchstart', stopPropagation);
@@ -1229,15 +1184,12 @@
                 e.stopPropagation();
             }
             
-            // Set up drag for existing blocks
             function setupBlockDrag(block) {
                 block.addEventListener('mousedown', startBlockDrag);
                 block.addEventListener('touchstart', startBlockDrag, { passive: false });
             }
             
-            // Start dragging an existing block
             function startBlockDrag(e) {
-                // Don't start drag if clicking on an input or button
                 if (e.target.tagName === 'INPUT' || 
                     e.target.tagName === 'TEXTAREA' || 
                     e.target.tagName === 'SELECT' || 
@@ -1273,7 +1225,6 @@
                 document.addEventListener('touchend', endBlockDrag);
             }
             
-            // Move existing block
             function dragBlockMove(e) {
                 if (!isDragging) return;
                 e.preventDefault();
@@ -1290,7 +1241,6 @@
                 draggedBlock.style.left = `${clientX - offsetX}px`;
                 draggedBlock.style.top = `${clientY - offsetY}px`;
                 
-                // Check if we're over the workspace
                 const workspaceRect = workspace.getBoundingClientRect();
                 const isOverWorkspace = (
                     clientX >= workspaceRect.left &&
@@ -1299,7 +1249,6 @@
                     clientY <= workspaceRect.bottom
                 );
                 
-                // Reset hover state
                 if (currentHoverBlock) {
                     currentHoverBlock.style.transform = '';
                     currentHoverBlock = null;
@@ -1308,7 +1257,6 @@
                 insertPosition = null;
                 
                 if (isOverWorkspace) {
-                    // Check if we're hovering over any other block in the workspace
                     const blocks = workspaceContent.querySelectorAll('.block');
                     let closestBlock = null;
                     let closestDistance = Infinity;
@@ -1332,7 +1280,6 @@
                         currentHoverBlock = closestBlock;
                         insertPosition = closestPosition;
                         
-                        // Visual feedback for insertion point
                         const blockRect = closestBlock.getBoundingClientRect();
                         if (insertPosition === 'before') {
                             dropIndicator.style.top = `${blockRect.top - 2}px`;
@@ -1347,7 +1294,6 @@
                         }
                         dropIndicator.style.opacity = '1';
                     } else {
-                        // Show indicator at the bottom if dragging over empty space
                         dropIndicator.style.top = `${workspaceRect.bottom - 20}px`;
                         dropIndicator.style.left = `${workspaceRect.left + 20}px`;
                         dropIndicator.style.width = `${workspaceRect.width - 40}px`;
@@ -1356,7 +1302,6 @@
                 }
             }
             
-            // End dragging existing block
             function endBlockDrag(e) {
                 if (!isDragging) return;
                 e.preventDefault();
@@ -1365,7 +1310,6 @@
                 draggedBlock.classList.remove('dragging');
                 draggedBlock.style.zIndex = '';
                 
-                // Check if we dropped in the workspace
                 const workspaceRect = workspace.getBoundingClientRect();
                 let clientX, clientY;
                 
@@ -1385,7 +1329,6 @@
                 );
                 
                 if (isOverWorkspace) {
-                    // Move the block to the new position
                     if (currentHoverBlock && insertPosition) {
                         if (insertPosition === 'before') {
                             workspaceContent.insertBefore(draggedBlock, currentHoverBlock);
@@ -1393,35 +1336,29 @@
                             workspaceContent.insertBefore(draggedBlock, currentHoverBlock.nextSibling);
                         }
                     } else {
-                        // Add to end if no specific position
                         workspaceContent.appendChild(draggedBlock);
                     }
                 } else {
-                    // Return to original position if dropped outside
                     workspaceContent.appendChild(draggedBlock);
                 }
                 
-                // Reset position styling
                 draggedBlock.style.position = '';
                 draggedBlock.style.left = '';
                 draggedBlock.style.top = '';
                 draggedBlock.style.width = '';
                 
-                // Reset hover effects
                 if (currentHoverBlock) {
                     currentHoverBlock.style.transform = '';
                     currentHoverBlock = null;
                 }
                 dropIndicator.style.opacity = '0';
                 
-                // Clean up event listeners
                 document.removeEventListener('mousemove', dragBlockMove);
                 document.removeEventListener('touchmove', dragBlockMove);
                 document.removeEventListener('mouseup', endBlockDrag);
                 document.removeEventListener('touchend', endBlockDrag);
             }
             
-            // Preview functionality
             previewBtn.addEventListener('click', function() {
                 const html = generateHTML();
                 const previewWindow = window.open('', '_blank');
@@ -1429,7 +1366,6 @@
                 previewWindow.document.close();
             });
             
-            // Export functionality
             exportBtn.addEventListener('click', function() {
                 exportOptions.style.display = 'block';
                 overlay.style.display = 'block';
@@ -1466,14 +1402,12 @@
                 }, 0);
             });
             
-            // Clear functionality
             clearBtn.addEventListener('click', function() {
                 if (confirm('Are you sure you want to clear your project?')) {
                     workspaceContent.innerHTML = '';
                 }
             });
             
-            // Generate HTML from blocks
             function generateHTML() {
                 let title = 'My Awesome Page';
                 let favicon = '🖥️';
@@ -1485,7 +1419,6 @@
                 let metaAuthor = 'Your Name';
                 let content = '';
                 
-                // Process all blocks
                 workspaceContent.querySelectorAll('.block').forEach(block => {
                     switch(block.dataset.type) {
                         case 'title':
@@ -1698,11 +1631,9 @@
                             const containerColor = block.querySelector('.block-color').value || '#f5f5f5';
                             let containerContent = '';
                             
-                            // Process container content
                             const containerDiv = block.querySelector('.container-content');
                             if (containerDiv) {
                                 containerDiv.querySelectorAll('.block').forEach(containerBlock => {
-                                    // Simplified content for nested blocks
                                     containerContent += `<div style="margin:10px; padding:10px; border:1px dashed #ccc;">Container content</div>`;
                                 });
                             }
@@ -1726,7 +1657,6 @@
                     }
                 });
                 
-                // Generate the full HTML
                 return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1767,15 +1697,12 @@
 </html>`;
             }
             
-            // Generate appropriate favicon tag based on input
             function generateFaviconTag(input) {
                 if (input.startsWith('http') || input.startsWith('data:')) {
                     return `<link rel="icon" href="${input}">`;
                 } else if (input.match(/\p{Emoji}/u)) {
-                    // It's an emoji
                     return `<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${input}</text></svg>">`;
                 } else {
-                    // Default to emoji computer
                     return `<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖥️</text></svg>">`;
                 }
             }
